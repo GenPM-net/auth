@@ -142,32 +142,55 @@ function googleProfile(idToken: string): Profile {
  * Nunca enlaza por un email sin verificar (toma de cuentas).
  */
 export async function upsertOAuthUser(provider: Provider, p: Profile, db: Executor = getDb()): Promise<User> {
+  return (await upsertOAuthUserWithStatus(provider, p, db)).user;
+}
+
+/** Como `upsertOAuthUser`, e indica si el usuario se acaba de crear (para el correo de bienvenida, onboarding…). */
+export async function upsertOAuthUserWithStatus(
+  provider: Provider,
+  p: Profile,
+  db: Executor = getDb(),
+): Promise<{ user: User; created: boolean }> {
   const run = async (tx: Executor) => {
     const [linked] = await tx
       .select({ user: users })
       .from(oauthAccounts)
       .innerJoin(users, eq(oauthAccounts.userId, users.id))
       .where(and(eq(oauthAccounts.provider, provider), eq(oauthAccounts.providerUserId, p.id)));
-    if (linked) return linked.user;
+    if (linked) return { user: linked.user, created: false };
     let user: User | undefined;
+    let created = false;
     if (p.email && p.emailVerified) [user] = await tx.select().from(users).where(eq(users.email, p.email));
     if (!user) {
       [user] = await tx
         .insert(users)
         .values({ email: p.emailVerified ? p.email : null, name: p.name, avatarUrl: p.avatarUrl })
         .returning();
+      created = true;
     }
     await tx.insert(oauthAccounts).values({ provider, providerUserId: p.id, userId: user!.id });
-    return user!;
+    return { user: user!, created };
   };
   return db === getDb() ? withTransaction(run) : run(db);
+}
+
+/** Se llama tras cada login correcto. Un error aquí se registra pero no rompe el login. */
+export type LoginHook = (e: { user: User; isNewUser: boolean; provider: Provider }) => void | Promise<void>;
+
+export async function runLoginHook(hook: LoginHook | undefined, e: Parameters<LoginHook>[0]): Promise<void> {
+  if (!hook) return;
+  try {
+    await hook(e);
+  } catch (err) {
+    console.error('[auth] onLogin failed', err);
+  }
 }
 
 /** Completa el login: valida el estado, canjea el código, crea/enlaza el usuario y abre una sesión. */
 export async function finishOAuth(
   provider: Provider,
   opts: { url: string | URL; cookieHeader: string | null | undefined },
-): Promise<{ user: User; token: string; setCookies: string[]; returnTo: string }> {
+): Promise<{ user: User; isNewUser: boolean; token: string; setCookies: string[]; returnTo: string }> {
   const url = new URL(opts.url);
   const state = verify(parseCookies(opts.cookieHeader)[STATE_COOKIE]);
   const code = url.searchParams.get('code');
@@ -185,8 +208,8 @@ export async function finishOAuth(
     if (e instanceof AuthError) throw e;
     throw new AuthError('oauth_failed', `${provider} rejected the authorization code`);
   }
-  const user = await upsertOAuthUser(provider, profile);
+  const { user, created } = await upsertOAuthUserWithStatus(provider, profile);
   const token = generateSessionToken();
   await createSession(token, user.id);
-  return { user, token, setCookies: [sessionCookie(token), serializeCookie(STATE_COOKIE, '', 0)], returnTo: state.r };
+  return { user, isNewUser: created, token, setCookies: [sessionCookie(token), serializeCookie(STATE_COOKIE, '', 0)], returnTo: state.r };
 }

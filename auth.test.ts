@@ -15,6 +15,8 @@ import {
   safeReturnTo,
   startOAuth,
   upsertOAuthUser,
+  upsertOAuthUserWithStatus,
+  runLoginHook,
   validateSessionToken,
 } from './index.js';
 
@@ -167,5 +169,19 @@ describe('Next adapter', () => {
     const user = await getUser({ get: (n) => (n === 'session' ? { value: token } : undefined) });
     expect(user?.email).toBe('nx@x.dev');
     expect(await getUser({ get: () => undefined })).toBeNull();
+  });
+});
+
+describe('usuario nuevo y onLogin', () => {
+  it('created solo la primera vez', async () => {
+    const p = { id: 'n1', email: 'n@x.dev', emailVerified: true, name: 'N', avatarUrl: null };
+    expect((await upsertOAuthUserWithStatus('github', p)).created).toBe(true);
+    expect((await upsertOAuthUserWithStatus('github', p)).created).toBe(false);
+    // Enlazar otro proveedor al mismo email verificado no es un usuario nuevo.
+    expect((await upsertOAuthUserWithStatus('google', { ...p, id: 'g9' })).created).toBe(false);
+  });
+  it('un error en onLogin no rompe el login', async () => {
+    const user = await newUser();
+    await expect(runLoginHook(() => { throw new Error('boom'); }, { user, isNewUser: true, provider: 'github' })).resolves.toBeUndefined();
   });
 });

@@ -10,11 +10,14 @@ export {
   callbackPath,
   enabledProviders,
   finishOAuth,
+  type LoginHook,
   type Profile,
   type Provider,
   safeReturnTo,
   startOAuth,
+  runLoginHook,
   upsertOAuthUser,
+  upsertOAuthUserWithStatus,
 } from './oauth.js';
 export { authSessions, oauthAccounts, type Session, type User, users } from './schema.js';
 export {

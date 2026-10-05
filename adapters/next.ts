@@ -1,9 +1,9 @@
 // Adaptador Next.js (App Router). Sin importar `next`: usa Request/Response estándar.
 //   app/auth/login/[provider]/route.ts     → export const GET = loginRoute;
-//   app/auth/callback/[provider]/route.ts  → export const GET = callbackRoute;
+//   app/auth/callback/[provider]/route.ts  → export const GET = callbackRoute;  (o callbackRouteWith({ onLogin }))
 //   app/auth/logout/route.ts               → export const POST = logoutRoute;
 //   Server Components: `const user = await getUser(await cookies())` (cookies de 'next/headers').
-import { AuthError, enabledProviders, finishOAuth, getUserFromCookieHeader, type Provider, SESSION_COOKIE, signOut, startOAuth, type User } from '../index.js';
+import { AuthError, enabledProviders, finishOAuth, getUserFromCookieHeader, type LoginHook, type Provider, runLoginHook, SESSION_COOKIE, signOut, startOAuth, type User } from '../index.js';
 
 type Ctx = { params: Promise<{ provider: string }> };
 type CookieStore = { get(name: string): { value: string } | undefined };
@@ -19,11 +19,21 @@ export async function loginRoute(req: Request, ctx: Ctx): Promise<Response> {
   return new Response(null, { status: 302, headers: { location: to.toString(), 'set-cookie': setCookie } });
 }
 
-export async function callbackRoute(req: Request, ctx: Ctx): Promise<Response> {
+/** Callback con `onLogin` (se llama tras cada login correcto con `isNewUser`). */
+export function callbackRouteWith(opts: { onLogin?: LoginHook } = {}) {
+  return (req: Request, ctx: Ctx) => callback(req, ctx, opts.onLogin);
+}
+
+export function callbackRoute(req: Request, ctx: Ctx): Promise<Response> {
+  return callback(req, ctx);
+}
+
+async function callback(req: Request, ctx: Ctx, onLogin?: LoginHook): Promise<Response> {
   const { provider } = await ctx.params;
   if (!isProvider(provider)) return json({ error: 'unknown_provider' }, 404);
   try {
     const r = await finishOAuth(provider, { url: req.url, cookieHeader: req.headers.get('cookie') });
+    await runLoginHook(onLogin, { user: r.user, isNewUser: r.isNewUser, provider });
     const headers = new Headers({ location: r.returnTo });
     for (const c of r.setCookies) headers.append('set-cookie', c);
     return new Response(null, { status: 302, headers });
