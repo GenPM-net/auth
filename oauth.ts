@@ -73,9 +73,15 @@ function verify(value: string | undefined): State | null {
   }
 }
 
-/** Solo rutas internas: evita redirecciones abiertas (`//evil.com`, `https://…`). */
+/**
+ * Solo rutas internas: evita redirecciones abiertas (`//evil.com`, `https://…`, `/\\evil.com`). Rechaza también
+ * barras invertidas y caracteres de control: los navegadores quitan tabuladores y saltos de línea de las URL, así que
+ * `/<TAB>/evil.com` acabaría siendo `//evil.com`.
+ */
 export function safeReturnTo(value: string | null | undefined): string {
-  return value && value.startsWith('/') && !value.startsWith('//') && !value.startsWith('/\\') ? value : '/';
+  if (!value || !value.startsWith('/') || value.startsWith('//')) return '/';
+  // biome-ignore lint/suspicious/noControlCharactersInRegex: se buscan justo los caracteres de control
+  return /[\\\u0000-\u001f\u007f]/.test(value) ? '/' : value;
 }
 
 export function startOAuth(

@@ -77,6 +77,8 @@ describe('oauth state', () => {
   it('only allows internal return paths', () => {
     expect(safeReturnTo('/dashboard?x=1')).toBe('/dashboard?x=1');
     for (const bad of ['//evil.com', 'https://evil.com', '/\\evil.com', '', null]) expect(safeReturnTo(bad)).toBe('/');
+    // Los navegadores quitan tabuladores y saltos de línea: '/\t/evil.com' sería '//evil.com'.
+    for (const bad of ['/\t/evil.com', '/\n/evil.com', '/\r//evil.com', '/a\\..\\evil', '/x\u0000y']) expect(safeReturnTo(bad)).toBe('/');
   });
   it('requires a strong AUTH_SECRET', () => {
     process.env.AUTH_SECRET = 'short';
