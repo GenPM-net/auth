@@ -146,6 +146,9 @@ describe('Hono adapter', () => {
 
     const out = await a.request('/auth/logout', { method: 'POST', headers: { cookie } });
     expect(out.headers.get('set-cookie')).toMatch(/Max-Age=0/);
+    expect(out.status).toBe(204);
+    const form = await a.request('/auth/logout', { method: 'POST', headers: { cookie, accept: 'text/html,application/xhtml+xml' } });
+    expect([form.status, form.headers.get('location')]).toEqual([303, '/']);
     expect((await a.request('/me', { headers: { cookie } })).status).toBe(401);
   });
 

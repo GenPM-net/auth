@@ -29,7 +29,7 @@ build them in your app on top of `users.id`). No passwords.
    Delete the adapter of the framework you don't use (`adapters/hono.ts` imports `hono`).
    To react to logins (welcome email, onboarding): `authRoutes({ onLogin: ({ user, isNewUser }) => … })` in Hono,
    `export const GET = callbackRouteWith({ onLogin })` in Next.js. `isNewUser` is true only the first time.
-5. Login link: `<a href="/auth/login/github?returnTo=/dashboard">`. Logout: `POST /auth/logout`.
+5. Login link: `<a href="/auth/login/github?returnTo=/dashboard">`. Logout: `POST /auth/logout` (a plain HTML form is redirected to `/`; `fetch` gets 204).
 6. Verify: open `/auth/login/github`, finish the flow, then `GET /api/me` returns the user.
 
 ## Conventions

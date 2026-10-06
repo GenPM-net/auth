@@ -47,6 +47,7 @@ export function authRoutes(opts: { onLogin?: LoginHook } = {}) {
     })
     .post('/logout', async (c) => {
       c.header('set-cookie', await signOut(c.req.header('cookie')));
-      return c.body(null, 204);
+      // Un formulario HTML (`<form method="post" action="/auth/logout">`) vuelve a la portada; fetch() recibe 204.
+      return c.req.header('accept')?.includes('text/html') ? c.redirect('/', 303) : c.body(null, 204);
     });
 }
