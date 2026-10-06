@@ -18,7 +18,7 @@ build them in your app on top of `users.id`). No passwords.
 3. Generate and apply migrations (see `src/lib/db/AGENTS.md`).
 4. Hono:
    ```ts
-   import { authRoutes, requireUser, sessionMiddleware } from './lib/auth/adapters/hono.js';
+   import { authRoutes, requireUser, sessionMiddleware } from './lib/auth/adapters/hono.ts';
    app.use(sessionMiddleware);
    app.route('/auth', authRoutes());
    app.get('/api/me', requireUser, (c) => c.json(c.get('user')));

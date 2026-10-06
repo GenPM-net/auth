@@ -3,8 +3,8 @@
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeBase32LowerCaseNoPadding, encodeHexLowerCase } from '@oslojs/encoding';
 import { eq } from 'drizzle-orm';
-import { type Executor, getDb } from '../db/index.js';
-import { authSessions, type Session, type User, users } from './schema.js';
+import { type Executor, getDb } from '../db/index.ts';
+import { authSessions, type Session, type User, users } from './schema.ts';
 
 const DAY = 86_400_000;
 export const SESSION_TTL_MS = 30 * DAY;

@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { testDb } from '../db/__fixtures__/pglite.js';
-import { authRoutes, requireUser, sessionMiddleware } from './adapters/hono.js';
-import { callbackRoute, getUser, loginRoute } from './adapters/next.js';
-import * as schema from './schema.js';
+import { testDb } from '../db/__fixtures__/pglite.ts';
+import { authRoutes, requireUser, sessionMiddleware } from './adapters/hono.ts';
+import { callbackRoute, getUser, loginRoute } from './adapters/next.ts';
+import * as schema from './schema.ts';
 import {
   createSession,
   generateSessionToken,
@@ -18,7 +18,7 @@ import {
   upsertOAuthUserWithStatus,
   runLoginHook,
   validateSessionToken,
-} from './index.js';
+} from './index.ts';
 
 const env = { AUTH_SECRET: 'x'.repeat(40), GITHUB_CLIENT_ID: 'gh-id', GITHUB_CLIENT_SECRET: 'gh-secret' };
 const realFetch = globalThis.fetch;

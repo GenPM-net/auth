@@ -1,7 +1,7 @@
 // Adaptador Hono: `app.route('/auth', authRoutes())`, `app.use(sessionMiddleware)` y `requireUser` en rutas privadas.
 import type { MiddlewareHandler } from 'hono';
 import { Hono } from 'hono';
-import { AuthError, enabledProviders, finishOAuth, getUserFromCookieHeader, type LoginHook, type Provider, runLoginHook, signOut, startOAuth, type User } from '../index.js';
+import { AuthError, enabledProviders, finishOAuth, getUserFromCookieHeader, type LoginHook, type Provider, runLoginHook, signOut, startOAuth, type User } from '../index.ts';
 
 export type AuthVariables = { user: User | null };
 
