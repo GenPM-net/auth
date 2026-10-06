@@ -1,0 +1,21 @@
+{
+  "$": 1,
+  "n": "@core/auth",
+  "v": "1.1.0",
+  "s": {
+    "en": "Sessions + OAuth (GitHub, Google) with Drizzle, for Hono and Next.js",
+    "es": "Sesiones + OAuth (GitHub, Google) con Drizzle, para Hono y Next.js",
+    "pt-BR": "Sessões + OAuth (GitHub, Google) com Drizzle, para Hono e Next.js",
+    "fr": "Sessions + OAuth (GitHub, Google) avec Drizzle, pour Hono et Next.js",
+    "de": "Sessions + OAuth (GitHub, Google) mit Drizzle, für Hono und Next.js",
+    "ja": "セッション + OAuth（GitHub、Google）、Drizzle 使用、Hono と Next.js 対応",
+    "zh-CN": "会话 + OAuth（GitHub、Google），基于 Drizzle，支持 Hono 和 Next.js",
+    "ko": "세션 + OAuth(GitHub, Google), Drizzle 기반, Hono와 Next.js 지원"
+  },
+  "d": "src/lib/auth",
+  "l": "MIT",
+  "k": ["auth", "oauth", "sessions", "github", "google", "login"],
+  "g": { "@core/db": "^1.0.0" },
+  "p": { "arctic": "^3.7.0", "@oslojs/crypto": "^1.0.1", "@oslojs/encoding": "^1.1.0" },
+  "e": ["AUTH_SECRET", "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET"]
+}
