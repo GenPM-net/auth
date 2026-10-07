@@ -1,6 +1,6 @@
 // Tablas de @core/auth. Las recoge drizzle-kit vía src/lib/db/drizzle.config.ts.
 import { index, pgTable, primaryKey, text, timestamp } from 'drizzle-orm/pg-core';
-import { primaryId, timestamps } from '../db/index.js';
+import { primaryId, timestamps } from '../db/index.ts';
 
 export const users = pgTable('users', {
   id: primaryId('usr'),

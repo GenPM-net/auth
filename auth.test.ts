@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { testDb } from '../db/__fixtures__/pglite.js';
-import { authRoutes, requireUser, sessionMiddleware } from './adapters/hono.js';
-import { callbackRoute, getUser, loginRoute } from './adapters/next.js';
-import * as schema from './schema.js';
+import { testDb } from '../db/__fixtures__/pglite.ts';
+import { authRoutes, requireUser, sessionMiddleware } from './adapters/hono.ts';
+import { callbackRoute, getUser, loginRoute } from './adapters/next.ts';
+import * as schema from './schema.ts';
 import {
   createSession,
   generateSessionToken,
@@ -18,7 +18,7 @@ import {
   upsertOAuthUserWithStatus,
   runLoginHook,
   validateSessionToken,
-} from './index.js';
+} from './index.ts';
 
 const env = { AUTH_SECRET: 'x'.repeat(40), GITHUB_CLIENT_ID: 'gh-id', GITHUB_CLIENT_SECRET: 'gh-secret' };
 const realFetch = globalThis.fetch;
@@ -42,7 +42,7 @@ describe('sessions', () => {
     const s = await createSession(token, user.id);
     expect(s.id).not.toContain(token);
     expect((await validateSessionToken(token)).user?.id).toBe(user.id);
-    vi.useFakeTimers({ now: Date.now() + SESSION_TTL_MS * 0.6 });
+    vi.useFakeTimers({ now: Date.now() + SESSION_TTL_MS * 0.6, toFake: ['Date'] }); // solo Date: el driver de Postgres usa temporizadores
     const renewed = await validateSessionToken(token);
     expect(renewed.session!.expiresAt.getTime()).toBeGreaterThan(s.expiresAt.getTime());
     vi.setSystemTime(Date.now() + SESSION_TTL_MS + 1000);
@@ -146,6 +146,9 @@ describe('Hono adapter', () => {
 
     const out = await a.request('/auth/logout', { method: 'POST', headers: { cookie } });
     expect(out.headers.get('set-cookie')).toMatch(/Max-Age=0/);
+    expect(out.status).toBe(204);
+    const form = await a.request('/auth/logout', { method: 'POST', headers: { cookie, accept: 'text/html,application/xhtml+xml' } });
+    expect([form.status, form.headers.get('location')]).toEqual([303, '/']);
     expect((await a.request('/me', { headers: { cookie } })).status).toBe(401);
   });
 

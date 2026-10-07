@@ -5,10 +5,10 @@ import { SHA256 } from '@oslojs/crypto/sha2';
 import { decodeBase64urlIgnorePadding, encodeBase64urlNoPadding } from '@oslojs/encoding';
 import { decodeIdToken, GitHub, Google, generateCodeVerifier, generateState } from 'arctic';
 import { and, eq } from 'drizzle-orm';
-import { type Executor, getDb, withTransaction } from '../db/index.js';
-import { parseCookies, serializeCookie, sessionCookie } from './cookies.js';
-import { oauthAccounts, type User, users } from './schema.js';
-import { createSession, generateSessionToken } from './session.js';
+import { type Executor, getDb, withTransaction } from '../db/index.ts';
+import { parseCookies, serializeCookie, sessionCookie } from './cookies.ts';
+import { oauthAccounts, type User, users } from './schema.ts';
+import { createSession, generateSessionToken } from './session.ts';
 
 export type Provider = 'github' | 'google';
 export type AuthErrorCode = 'provider_disabled' | 'invalid_state' | 'oauth_failed' | 'missing_secret';

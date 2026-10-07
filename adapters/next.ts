@@ -3,7 +3,7 @@
 //   app/auth/callback/[provider]/route.ts  → export const GET = callbackRoute;  (o callbackRouteWith({ onLogin }))
 //   app/auth/logout/route.ts               → export const POST = logoutRoute;
 //   Server Components: `const user = await getUser(await cookies())` (cookies de 'next/headers').
-import { AuthError, enabledProviders, finishOAuth, getUserFromCookieHeader, type LoginHook, type Provider, runLoginHook, SESSION_COOKIE, signOut, startOAuth, type User } from '../index.js';
+import { AuthError, enabledProviders, finishOAuth, getUserFromCookieHeader, type LoginHook, type Provider, runLoginHook, SESSION_COOKIE, signOut, startOAuth, type User } from '../index.ts';
 
 type Ctx = { params: Promise<{ provider: string }> };
 type CookieStore = { get(name: string): { value: string } | undefined };
@@ -44,7 +44,11 @@ async function callback(req: Request, ctx: Ctx, onLogin?: LoginHook): Promise<Re
 }
 
 export async function logoutRoute(req: Request): Promise<Response> {
-  return new Response(null, { status: 204, headers: { 'set-cookie': await signOut(req.headers.get('cookie')) } });
+  const headers = new Headers({ 'set-cookie': await signOut(req.headers.get('cookie')) });
+  // Un formulario HTML (`<form method="post" action="/auth/logout">`) vuelve a la portada; fetch() recibe 204.
+  if (!req.headers.get('accept')?.includes('text/html')) return new Response(null, { status: 204, headers });
+  headers.set('location', '/');
+  return new Response(null, { status: 303, headers });
 }
 
 /** Usuario actual en Server Components / Route Handlers: `getUser(await cookies())`. */

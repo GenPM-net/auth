@@ -1,5 +1,5 @@
 // Cookies de sesión y de estado OAuth, sin dependencias de framework (devuelven cabeceras Set-Cookie).
-import { SESSION_TTL_MS } from './session.js';
+import { SESSION_TTL_MS } from './session.ts';
 
 export const SESSION_COOKIE = 'session';
 

@@ -1,7 +1,7 @@
 {
   "$": 1,
   "n": "@core/auth",
-  "v": "1.1.0",
+  "v": "1.2.0",
   "s": {
     "en": "Sessions + OAuth (GitHub, Google) with Drizzle, for Hono and Next.js",
     "es": "Sesiones + OAuth (GitHub, Google) con Drizzle, para Hono y Next.js",
