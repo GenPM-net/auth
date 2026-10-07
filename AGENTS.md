@@ -26,7 +26,8 @@ build them in your app on top of `users.id`). No passwords.
    Next.js (App Router): create `app/auth/login/[provider]/route.ts` with `export { loginRoute as GET } from '@/lib/auth/adapters/next'`,
    the same for `callback/[provider]` (`callbackRoute`) and `app/auth/logout/route.ts` (`logoutRoute as POST`).
    In Server Components: `const user = await getUser(await cookies())`.
-   Delete the adapter of the framework you don't use (`adapters/hono.ts` imports `hono`).
+   Delete the adapter of the framework you don't use (`adapters/hono.ts` imports `hono`; in a Next project delete every
+   `src/lib/*/adapters/hono.ts`, or `tsc` fails).
    To react to logins (welcome email, onboarding): `authRoutes({ onLogin: ({ user, isNewUser }) => … })` in Hono,
    `export const GET = callbackRouteWith({ onLogin })` in Next.js. `isNewUser` is true only the first time.
 5. Login link: `<a href="/auth/login/github?returnTo=/dashboard">`. Logout: `POST /auth/logout` (a plain HTML form is redirected to `/`; `fetch` gets 204).
