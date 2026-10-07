@@ -42,7 +42,7 @@ describe('sessions', () => {
     const s = await createSession(token, user.id);
     expect(s.id).not.toContain(token);
     expect((await validateSessionToken(token)).user?.id).toBe(user.id);
-    vi.useFakeTimers({ now: Date.now() + SESSION_TTL_MS * 0.6 });
+    vi.useFakeTimers({ now: Date.now() + SESSION_TTL_MS * 0.6, toFake: ['Date'] }); // solo Date: el driver de Postgres usa temporizadores
     const renewed = await validateSessionToken(token);
     expect(renewed.session!.expiresAt.getTime()).toBeGreaterThan(s.expiresAt.getTime());
     vi.setSystemTime(Date.now() + SESSION_TTL_MS + 1000);
